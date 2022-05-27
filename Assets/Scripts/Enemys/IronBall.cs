@@ -2,11 +2,12 @@
 using System.Threading.Tasks;
 using Common.Entities;
 using Enemys.BaseEnemy;
-using Environment;
+using Project;
 using UnityEngine;
 
 namespace Enemys
 {
+    [RequireComponent(typeof(CircleCollider2D))]
     public class IronBall : Enemy<IronBall>
     {
         [SerializeField] private float _attackRadius;
@@ -20,12 +21,19 @@ namespace Enemys
 
         private Coroutine _timer;
 
+
+        protected override IEnumerator Destroyed()
+        {
+            yield return null;
+            Destroy(gameObject);
+        }
+
         private async void Explosion(IDamageble player)
         {
             _ballSprite.enabled = false;
          
             ProjectContext.Instance.MainCamera.Explosion();
-            AudioSource.Play();
+            Audio.Play();
             _explosionEffect.gameObject.SetActive(true);
             
             player.TakeDamage();
@@ -34,6 +42,7 @@ namespace Enemys
 
             Health.TakeDamage();
         }
+        
         private void Update()
         {
             Collider2D collision = Physics2D.OverlapCircle(transform.position, _attackRadius, _playerLayer);
@@ -52,9 +61,9 @@ namespace Enemys
             }
         }
 
-        protected override void OnTriggerEnter2D(Collider2D other)
+        protected override void OnCollisionEnter2D(Collision2D other)
         {
-            if (other.TryGetComponent(out IDamageble player))
+            if (other.collider.TryGetComponent(out IDamageble player))
             {
                 Explosion(player);
             }

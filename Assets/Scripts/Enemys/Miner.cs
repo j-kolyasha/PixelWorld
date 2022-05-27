@@ -16,14 +16,14 @@ namespace Enemys
         {
             base.InheritStart();
 
-            EndMove += Rest;
+            //EndMove += Rest;
         }
 
         protected override void InheritOnDestroy()
         {
             base.InheritOnDestroy();
 
-            EndMove -= Rest;
+            //EndMove -= Rest;
         }
 
         private async void Rest()
