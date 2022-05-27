@@ -1,7 +1,9 @@
 ﻿using Common.MonoBehaviour;
 using Common.Entities;
+using Project;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace Character
 {
@@ -15,12 +17,17 @@ namespace Character
         public event UnityAction<Character> Death;
         
         [SerializeField] private EnemyScaner _enemyScaner;
+        [SerializeField] private AudioClip _takeDamageClip;
+        
         private Health _health;
         private Movement.Movement _movement;
         private CapsuleCollider2D _collider;
         private Animator _animator;
-        
-        public ECharacterState CharacterState { get; private set; }
+        private Rigidbody2D _rigidbody;
+
+        public Health Health => _health;
+        public Rigidbody2D Rigidbody => _rigidbody;
+        public EEntityState EntityState { get; private set; }
 
         protected override void InheritStart()
         {
@@ -30,9 +37,11 @@ namespace Character
             _movement = GetComponent<Movement.Movement>();
             _collider = GetComponent<CapsuleCollider2D>();
             _animator = GetComponent<Animator>();
+            _rigidbody = GetComponent<Rigidbody2D>();
 
-            CharacterState = ECharacterState.Alive;
+            EntityState = EEntityState.Alive;
             _health.Death += Die;
+            _health.TakingDamage += TakeDamage;
         }
 
         private void Die()
@@ -41,13 +50,18 @@ namespace Character
             _movement.enabled = false;
             _collider.enabled = false;
 
-            CharacterState = ECharacterState.Death;
+            EntityState = EEntityState.Death;
             Death?.Invoke(this);
         }
-        
+
+        private void TakeDamage(int health)
+        {
+            ProjectContext.Instance.SoundPlayer.PlayClip(_takeDamageClip);
+        }
+
         private void Update()
         {
-            if (CharacterState == ECharacterState.Death)
+            if (EntityState == EEntityState.Death)
                 return;
             
             Vector2 origin = transform.position;

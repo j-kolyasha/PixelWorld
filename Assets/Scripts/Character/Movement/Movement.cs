@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Common.Entities;
 using Common.MonoBehaviour;
+using Project;
 using UnityEngine;
 
 namespace Character.Movement
@@ -15,6 +16,7 @@ namespace Character.Movement
         [Header("Settings")]
         [SerializeField, Range(1f, 10f)] private float _speedMovement;
         [SerializeField, Range(1f, 20f)] private float _jumpForce;
+        [SerializeField] private AudioClip _jumpClip;
         
         private Rigidbody2D _rigidbody;
         private Animator _animator;
@@ -71,7 +73,10 @@ namespace Character.Movement
         private void CheckingPossibilityJump()
         {
             if (CheckGround())
+            {
+                ProjectContext.Instance.SoundPlayer.PlayClip(_jumpClip);
                 Jump();
+            }
         }
         
         private IEnumerator WaitingGround()
